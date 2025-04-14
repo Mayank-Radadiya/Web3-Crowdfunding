@@ -1,7 +1,6 @@
 require("@matterlabs/hardhat-zksync-solc");
 require("@matterlabs/hardhat-zksync-verify");
 
-
 /** @type import('hardhat/config').HardhatUserConfig */
 module.exports = {
   zksolc: {
@@ -39,6 +38,14 @@ module.exports = {
   },
   solidity: {
     version: "0.8.23",
+    defaultNetwork: "sepolia",
+    networks: {
+      hardhat: {},
+      sepolia: {
+        url: "https://rpc.ankr.com/eth_sepolia/5975bea28d045f9e378696bc1166369420821cfe70ceffcc2fff5e32ac910c19",
+        accounts: [`0x${process.env.PRIVATE_KEY}`],
+      },
+    },
     settings: {
       optimizer: {
         enabled: true,
