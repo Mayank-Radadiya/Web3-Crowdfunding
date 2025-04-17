@@ -35,12 +35,14 @@ interface Campaign {
 interface StateContextType {
   address: string | undefined;
   contract: SmartContract | undefined;
-  connect: () => Promise<void>;
+  // connect: () => Promise<void>;
   createCampaign: (form: CampaignFormData) => Promise<void>;
   getCampaigns: () => Promise<Campaign[]>;
   getUserCampaigns: () => Promise<Campaign[]>;
   donate: (pId: number, amount: string) => Promise<void>;
-  getDonations: (pId: number) => Promise<{ donators: string[], donations: ethers.BigNumber[] }>;
+  getDonations: (
+    pId: number
+  ) => Promise<{ donators: string[]; donations: ethers.BigNumber[] }>;
 }
 
 // Create context with default values
@@ -52,7 +54,7 @@ export const StateContextProvider = ({
   children: React.ReactNode;
 }) => {
   const { contract } = useContract(
-    "0x8bd9851c4968f9f5ae54441f7f69b6c115f2e409"
+    "0x8Bd9851C4968f9f5AE54441f7f69b6c115f2E409"
   );
 
   const { mutateAsync: createCampaign } = useContractWrite(
@@ -89,7 +91,8 @@ export const StateContextProvider = ({
   const getUserCampaigns = async (): Promise<Campaign[]> => {
     const allCampaigns = await getCampaigns();
     const userCampaigns = allCampaigns.filter(
-      (campaign: Campaign) => campaign.owner.toLowerCase() === address?.toLowerCase()
+      (campaign: Campaign) =>
+        campaign.owner.toLowerCase() === address?.toLowerCase()
     );
     return userCampaigns;
   };
@@ -127,7 +130,6 @@ export const StateContextProvider = ({
       value={{
         address,
         contract,
-        connect,
         createCampaign: publishCampaign,
         getCampaigns,
         getUserCampaigns,
@@ -143,7 +145,9 @@ export const StateContextProvider = ({
 export const useStateContext = () => {
   const context = useContext(StateContext);
   if (context === undefined) {
-    throw new Error("useStateContext must be used within a StateContextProvider");
+    throw new Error(
+      "useStateContext must be used within a StateContextProvider"
+    );
   }
   return context;
 };

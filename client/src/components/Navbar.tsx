@@ -1,17 +1,16 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-// import { useStateContext } from '../context';
+import { useStateContext } from "../context";
 import { CustomButton } from "./";
-import { logo, menu, search, thirdweb } from "../assets";
+import { logo, menu, thirdweb } from "../assets";
 import { navLinks } from "../constants";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
-  // const { connect, address } = useStateContext();
-  const { connect, address } = { connect: "hello", address: "world" }; // Placeholder for context
+  const { connect, address } = useStateContext();
 
   return (
     <div className="flex md:flex-row flex-col-reverse justify-end mb-[35px] gap-6">
@@ -26,7 +25,7 @@ const Navbar = () => {
           }
           handleClick={() => {
             if (address) navigate("create-campaign");
-            // else connect()
+            else connect()
           }}
         />
 
@@ -97,7 +96,7 @@ const Navbar = () => {
           <div className="flex mx-4">
             <CustomButton
               btnType="button"
-              title={address ? "Create a campaign" : "Connect"}
+              title={address ? "Create a campaign" : "Connect wallet"}
               styles={
                 address
                   ? "bg-gradient-to-r from-[#1dc071] to-[#2ecc71] w-full"
@@ -105,7 +104,7 @@ const Navbar = () => {
               }
               handleClick={() => {
                 if (address) navigate("create-campaign");
-                // else connect();
+                else connect();
               }}
             />
           </div>

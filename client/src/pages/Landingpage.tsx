@@ -8,6 +8,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { logo } from "../assets";
 
 export default function LandingPage() {
   const navigation = useNavigate();
@@ -66,21 +67,18 @@ export default function LandingPage() {
               Fund groundbreaking ideas, creative projects, and meaningful
               causes. Join our community of changemakers on the blockchain.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4">
-              <button className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-8 py-6 text-lg rounded-md">
+            <div className="flex items-center">
+              <button className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-8 py-6 text-lg rounded-[10px]">
                 Create a campaign
-              </button>
-              <button className="border border-gray-700 text-white hover:bg-gray-800 px-8 py-6 text-lg rounded-md">
-                Explore projects
               </button>
             </div>
           </div>
 
           <div className="relative w-full h-64 md:h-96 rounded-xl overflow-hidden mt-12">
             <img
-              src="/placeholder.svg?height=400&width=1200"
+              src={logo}
               alt="Blockchain Crowdfunding Platform"
-              className="object-cover w-full h-full"
+              className="object-cover opacity-85 w-full h-full"
             />
             <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-teal-400/20 mix-blend-overlay"></div>
           </div>
@@ -93,19 +91,19 @@ export default function LandingPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="text-center">
               <p className="text-4xl font-bold bg-gradient-to-r from-violet-400 to-teal-400 bg-clip-text text-transparent">
-                500+
+                30+
               </p>
               <p className="text-gray-400 mt-2">Successful Campaigns</p>
             </div>
             <div className="text-center">
               <p className="text-4xl font-bold bg-gradient-to-r from-violet-400 to-teal-400 bg-clip-text text-transparent">
-                1,200 ETH
+                200+ ETH
               </p>
               <p className="text-gray-400 mt-2">Total Funded</p>
             </div>
             <div className="text-center">
               <p className="text-4xl font-bold bg-gradient-to-r from-violet-400 to-teal-400 bg-clip-text text-transparent">
-                10,000+
+                500+
               </p>
               <p className="text-gray-400 mt-2">Community Members</p>
             </div>
@@ -128,7 +126,7 @@ export default function LandingPage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-gray-800/50 p-8 rounded-xl border border-gray-700 hover:border-violet-500/50 transition">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-violet-500 to-teal-400 flex items-center justify-center mb-6">
+              <div className="w-12 h-12 rounded-[5px] bg-gradient-to-r from-violet-500 to-teal-400 flex items-center justify-center mb-6">
                 <Lightbulb className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-3">Create a Campaign</h3>
@@ -138,8 +136,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="bg-gray-800/50 p-8 rounded-xl border border-gray-700 hover:border-teal-500/50 transition">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-violet-500 to-teal-400 flex items-center justify-center mb-6">
+            <div className="bg-gray-800/50 p-8 rounded-[5px]  border border-gray-700 hover:border-teal-500/50 transition">
+              <div className="w-12 h-12 rounded-[5px]  bg-gradient-to-r from-violet-500 to-teal-400 flex items-center justify-center mb-6">
                 <Coins className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-3">Receive Funding</h3>
@@ -149,8 +147,8 @@ export default function LandingPage() {
               </p>
             </div>
 
-            <div className="bg-gray-800/50 p-8 rounded-xl border border-gray-700 hover:border-violet-500/50 transition">
-              <div className="w-12 h-12 rounded-lg bg-gradient-to-r from-violet-500 to-teal-400 flex items-center justify-center mb-6">
+            <div className="bg-gray-800/50 p-8 rounded-[5px]  border border-gray-700 hover:border-violet-500/50 transition">
+              <div className="w-12 h-12 rounded-[5px]  bg-gradient-to-r from-violet-500 to-teal-400 flex items-center justify-center mb-6">
                 <Rocket className="w-6 h-6 text-white" />
               </div>
               <h3 className="text-xl font-bold mb-3">Launch Your Project</h3>
@@ -298,15 +296,15 @@ export default function LandingPage() {
                   Join our community of innovators and bring your vision to life
                   with blockchain-powered crowdfunding.
                 </p>
-                <button className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-8 py-6 text-lg rounded-md inline-flex items-center">
-                  Create a campaign <ArrowRight className="ml-2 h-5 w-5" />
+                <button className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-6 py-6 text-lg rounded-[15px] inline-flex items-center">
+                  Visit Dashboard <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
               </div>
               <div className="relative h-64 rounded-xl overflow-hidden">
                 <img
-                  src="/placeholder.svg?height=300&width=500"
+                  src={logo}
                   alt="Create a campaign"
-                  className="object-cover w-full h-full"
+                  className="object-fit w-full h-full"
                 />
                 <div className="absolute inset-0 bg-gradient-to-r from-violet-500/20 to-teal-400/20 mix-blend-overlay"></div>
               </div>

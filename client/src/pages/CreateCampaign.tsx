@@ -19,7 +19,7 @@ const CreateCampaign = () => {
   const deadlineRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
 
-  const { createCampaign } =  useStateContext();
+  const { createCampaign } = useStateContext();
 
   const [form, setForm] = useState({
     name: "",
@@ -30,7 +30,7 @@ const CreateCampaign = () => {
     image: "",
   });
 
-  const submitForm = async(e: React.FormEvent) => {
+  const submitForm = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
@@ -44,10 +44,22 @@ const CreateCampaign = () => {
     };
 
     setForm(formData);
-    toast.success("Campaign created successfully!");
-    setIsLoading(false);
+    checkIfImage(formData.image, async (exists) => {
+      if (exists) {
+        await createCampaign({
+          ...form,
+          target: ethers.utils.parseUnits(form.target, 18).toString(),
+        });
+        setIsLoading(false);
+        navigate("/");
+        toast.success("Campaign created successfully!");
+      } else {
+        setIsLoading(false);
+        toast.error("Provide a valid image URL");
+        setForm({ ...form, image: "" });
+      }
+    });
   };
-
   return (
     <div className="bg-gradient-to-br from-[#1c1c24] to-[#2c2c34] flex justify-center items-center flex-col rounded-[20px] shadow-xl sm:p-12 p-5 transition-all duration-300 hover:shadow-2xl border border-[#3a3a43]/30">
       {isLoading && <Loader />}

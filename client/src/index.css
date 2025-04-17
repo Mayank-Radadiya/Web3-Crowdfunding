@@ -4,7 +4,10 @@
 @tailwind components;
 @tailwind utilities;
 
-
+html,
+body {
+  background-color: #0f0f13;
+}
 
 @layer base {
   * {
@@ -19,7 +22,6 @@
 .gradient-text {
   @apply bg-gradient-to-r from-violet-400 to-teal-400 bg-clip-text text-transparent;
 }
-
 
 .linear-gradient {
   background: linear-gradient(
