@@ -61,15 +61,15 @@ const CampaignDetails = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState("");
-  const [donators, setDonators] = useState([]);
-  const [campaign, setCampaign] = useState<any>(null);
+  const [donators, setDonators] = useState([] as any[]);
+  const [campaign, setCampaign] = useState<any>(sampleCampaigns);
 
   // Fetch campaign details - replace with actual data fetching logic
   useEffect(() => {
     setIsLoading(true);
     const foundCampaign = sampleCampaigns.find((c) => c.id === id);
     if (foundCampaign) {
-      setCampaign(foundCampaign);
+      // setCampaign(foundCampaign);
       setDonators(foundCampaign?.donators);
     }
     setIsLoading(false);

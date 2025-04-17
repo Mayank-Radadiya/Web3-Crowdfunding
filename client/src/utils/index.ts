@@ -1,3 +1,6 @@
+import { createThirdwebClient, getContract } from "thirdweb";
+import { sepolia } from "thirdweb/chains";
+
 export const daysLeft = (deadline: number) => {
   const difference = new Date(deadline).getTime() - Date.now();
   const days = Math.floor(difference / (1000 * 60 * 60 * 24));
@@ -11,13 +14,16 @@ export const calculateBarPercentage = (goal: number, raisedAmount: number) => {
   return percentage;
 };
 
+export const checkIfImage = (
+  url: string,
+  callback: (arg0: boolean) => void
+): void => {
+  const img = new Image();
+  img.src = url;
+  if (img.complete) callback(true);
 
-
-export const checkIfImage = (url: string, callback: (arg0: boolean) => void): void => {
-    const img = new Image();
-    img.src = url;
-    if (img.complete) callback(true);
-
-    img.onload = () => callback(true);
-    img.onerror = () => callback(false);
+  img.onload = () => callback(true);
+  img.onerror = () => callback(false);
 };
+
+

@@ -6,7 +6,10 @@ import { money } from "../assets";
 import { CustomButton, FormField, Loader } from "../components";
 import { checkIfImage } from "../utils";
 import toast from "react-hot-toast";
-import { useStateContext } from "../context";
+import { prepareContractCall } from "thirdweb";
+import { useSendTransaction } from "thirdweb/react";
+import { contract } from "../utils/client";
+import { useAddress, useMetamask } from "@thirdweb-dev/react";
 
 const CreateCampaign = () => {
   const navigate = useNavigate();
@@ -19,7 +22,8 @@ const CreateCampaign = () => {
   const deadlineRef = useRef<HTMLInputElement>(null);
   const imageRef = useRef<HTMLInputElement>(null);
 
-  const { createCampaign } = useStateContext();
+  const address = useAddress();
+  const connect = useMetamask();
 
   const [form, setForm] = useState({
     name: "",
@@ -46,10 +50,23 @@ const CreateCampaign = () => {
     setForm(formData);
     checkIfImage(formData.image, async (exists) => {
       if (exists) {
-        await createCampaign({
-          ...form,
-          target: ethers.utils.parseUnits(form.target, 18).toString(),
+        const { mutate: sendTransaction } = useSendTransaction();
+
+        const transaction = prepareContractCall({
+          contract,
+          method:
+            "function createCampaign(address _owner, string _title, string _description, string _image, uint256 _deadline, uint256 _target) returns (uint256)",
+          params: [
+            address!,
+            formData.title,
+            formData.description,
+            formData.image,
+            BigInt(formData.deadline),
+            BigInt(formData.target),
+          ],
         });
+
+        sendTransaction(transaction);
         setIsLoading(false);
         navigate("/");
         toast.success("Campaign created successfully!");
