@@ -1,6 +1,3 @@
-import { createThirdwebClient, getContract } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
-
 export const daysLeft = (deadline: number) => {
   const difference = new Date(deadline).getTime() - Date.now();
   const days = Math.floor(difference / (1000 * 60 * 60 * 24));

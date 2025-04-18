@@ -12,7 +12,10 @@ const queryClient = new QueryClient();
 createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
-      <ThirdwebProvider clientId={import.meta.env.VITE_THIRDWEB_CLIENT_ID}>
+      <ThirdwebProvider
+        clientId={import.meta.env.VITE_THIRDWEB_CLIENT_ID}
+        activeChain="sepolia"
+      >
         <Router>
           <Toaster />
           <App />

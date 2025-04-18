@@ -1,11 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CustomButton, Loader } from "../components";
-import { createThirdwebClient, getContract } from "thirdweb";
-import { sepolia } from "thirdweb/chains";
-import { useReadContract } from "thirdweb/react";
 import { Loader2 } from "lucide-react";
-import { contract } from "../utils/client";
+import { useContract } from "@thirdweb-dev/react";
+import { ethers } from "ethers";
 
 interface Campaign {
   id: string;
@@ -21,44 +19,60 @@ interface Campaign {
 const Home = () => {
   const navigate = useNavigate();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
-
   const [searchTerm, setSearchTerm] = useState("");
-  const [filteredCampaigns, setFilteredCampaigns] = useState(campaigns);
+  const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data, isPending } = useReadContract({
-    contract,
-    method:
-      "function getAllCampaign() view returns ((address owner, string title, string description, uint256 target, uint256 deadline, uint256 amountCollected, string image, address[] donators, uint256[] donations)[])",
-    params: [],
-  });
+  // Use the contract hook at the component level
+  const { contract } = useContract(
+    "0x476C70693E0C143953f3284f23aE21C62b4E2240"
+  );
 
-  const [isLoading, setIsLoading] = useState(isPending);
-
+  // Fetch campaigns once the contract is loaded
   useEffect(() => {
-    if (data) {
-      setCampaigns(
-        data.map((item) => ({
-          id: crypto.randomUUID(),
-          owner: item.owner,
-          title: item.title,
-          description: item.description,
-          target: item.target.toString(),
-          deadline: item.deadline.toString(),
-          amountCollected: item.amountCollected.toString(),
-          image: item.image,
-        }))
+    const fetchCampaigns = async () => {
+      if (!contract) return;
+
+      try {
+        const data = await contract.call("getAllCampaigns");
+        if (data) {
+          const formattedCampaigns = data.map((item: any, index: number) => ({
+            id: index,
+            owner: item.owner,
+            title: item.title,
+            description: item.description,
+            target: item.target.toString(),
+            deadline: item.deadline.toString(),
+            amountCollected: ethers.utils.formatEther(item.amountCollected),
+            image: item.image,
+          }));
+          setCampaigns(formattedCampaigns);
+          setFilteredCampaigns(formattedCampaigns);
+        }
+      } catch (error) {
+        console.error("Failed to fetch campaigns:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchCampaigns();
+  }, [contract]);
+
+  console.log("Campaigns:", campaigns);
+
+  // Filter campaigns when search term or campaigns change
+  useEffect(() => {
+    if (searchTerm === "") {
+      setFilteredCampaigns(campaigns);
+    } else {
+      const results = campaigns.filter(
+        (campaign) =>
+          campaign.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          campaign.description.toLowerCase().includes(searchTerm.toLowerCase())
       );
+      setFilteredCampaigns(results);
     }
-    setIsLoading(false);
-  }, [data]);
-
-  useEffect(() => {
-    const results = campaigns?.filter(
-      (campaign) =>
-        campaign.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        campaign.description.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-    setFilteredCampaigns(results);
   }, [searchTerm, campaigns]);
 
   // Format address to show only first and last few characters
@@ -68,16 +82,17 @@ const Home = () => {
   };
 
   // Calculate days left until deadline
-  const calculateDaysLeft = (deadline: bigint) => {
-    const deadlineDate = new Date(Number(deadline));
+  const calculateDaysLeft = (deadline: string) => {
+    const deadlineDate = new Date(Number(deadline) * 1000);
     const currentDate = new Date();
     const difference = deadlineDate.getTime() - currentDate.getTime();
     const daysLeft = Math.ceil(difference / (1000 * 3600 * 24));
-    return daysLeft;
+    return daysLeft > 0 ? daysLeft : 0;
   };
 
   // Calculate progress percentage
   const calculateProgress = (collected: string, target: string) => {
+    if (parseFloat(target) === 0) return 0;
     return Math.min(100, (parseFloat(collected) / parseFloat(target)) * 100);
   };
 
@@ -111,8 +126,8 @@ const Home = () => {
       </div>
 
       {isLoading && (
-        <div className="flex justify-center items-center">
-          <Loader />
+        <div className="flex justify-center items-center py-20">
+          <Loader2 className="animate-spin text-white w-10 h-10" />
         </div>
       )}
 
@@ -133,14 +148,8 @@ const Home = () => {
         </div>
       )}
 
-      {isLoading && (
-        <>
-          <Loader2 className="animate-spin text-white" />
-        </>
-      )}
-
       {!isLoading && filteredCampaigns.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
           {filteredCampaigns.map((campaign) => (
             <div
               key={campaign.id}
@@ -157,7 +166,7 @@ const Home = () => {
                 <div className="flex flex-col">
                   <div className="flex justify-between items-center mb-3">
                     <p className="font-epilogue font-medium text-[13px] text-[#b2b3bd] bg-[#13131a] px-3 py-1 rounded-full">
-                      {calculateDaysLeft(BigInt(campaign?.deadline))} Days Left
+                      {calculateDaysLeft(campaign.deadline)} Days Left
                     </p>
                     <p className="font-epilogue font-medium text-[13px] text-[#b2b3bd]">
                       by {formatAddress(campaign.owner)}
@@ -191,7 +200,7 @@ const Home = () => {
                         {campaign.amountCollected} ETH
                       </h4>
                       <p className="font-epilogue text-[#a8a8b3] text-[12px]">
-                        Raised of {campaign.target} ETH
+                        Raised of {parseFloat(campaign.target)} ETH
                       </p>
                     </div>
                   </div>

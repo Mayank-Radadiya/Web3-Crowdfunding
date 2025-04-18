@@ -3,87 +3,84 @@ import { useParams } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { thirdweb } from "../assets";
 import { CustomButton, Loader } from "../components";
-
-// Sample campaign data - replace with actual data from your backend
-const sampleCampaigns = [
-  {
-    id: "1",
-    owner: "0x1234567890abcdef1234567890abcdef12345678",
-    title: "Fund the Future",
-    description:
-      "Help us build a sustainable future with innovative technology that addresses climate change and promotes renewable energy solutions. Our team of engineers and scientists are developing cutting-edge systems that can help communities reduce their carbon footprint while increasing energy efficiency.",
-    target: "10.0",
-    deadline: "2025-06-01",
-    amountCollected: "5.2",
-    image:
-      "https://images.unsplash.com/photo-1618044733300-9472054094ee?q=80&w=500&auto=format&fit=crop",
-    donators: [
-      {
-        address: "0xabcd1234abcd1234abcd1234abcd1234abcd1234",
-        donation: "1.5",
-      },
-      {
-        address: "0xefgh5678efgh5678efgh5678efgh5678efgh5678",
-        donation: "2.0",
-      },
-      {
-        address: "0xijkl9012ijkl9012ijkl9012ijkl9012ijkl9012",
-        donation: "1.7",
-      },
-    ],
-  },
-  {
-    id: "2",
-    owner: "0xabcdefabcdefabcdefabcdefabcdefabcdefabcd",
-    title: "Clean Water Initiative",
-    description:
-      "Providing clean water to communities in need around the world. Our project aims to build sustainable water purification systems in areas with limited access to clean drinking water. With your support, we can help prevent waterborne diseases and improve quality of life in these communities.",
-    target: "5.0",
-    deadline: "2025-05-15",
-    amountCollected: "3.7",
-    image:
-      "https://images.unsplash.com/photo-1535890696255-dd5bcd79e6df?q=80&w=500&auto=format&fit=crop",
-    donators: [
-      {
-        address: "0x1234abcd1234abcd1234abcd1234abcd1234abcd",
-        donation: "1.2",
-      },
-      {
-        address: "0x5678efgh5678efgh5678efgh5678efgh5678efgh",
-        donation: "2.5",
-      },
-    ],
-  },
-];
+import { useContract, useContractWrite } from "@thirdweb-dev/react";
+import { daysLeft } from "../utils";
+import toast from "react-hot-toast";
+import { ethers } from "ethers";
 
 const CampaignDetails = () => {
-  const { id } = useParams();
+  const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [amount, setAmount] = useState("");
   const [donators, setDonators] = useState([] as any[]);
-  const [campaign, setCampaign] = useState<any>(sampleCampaigns);
+  const [campaign, setCampaign] = useState<any>([]);
+
+  const { contract } = useContract(
+    "0x476C70693E0C143953f3284f23aE21C62b4E2240"
+  );
+
+  if (!id) {
+    return <div>Invalid campaign ID</div>;
+  }
 
   // Fetch campaign details - replace with actual data fetching logic
   useEffect(() => {
     setIsLoading(true);
-    const foundCampaign = sampleCampaigns.find((c) => c.id === id);
-    if (foundCampaign) {
-      // setCampaign(foundCampaign);
-      setDonators(foundCampaign?.donators);
-    }
-    setIsLoading(false);
-  }, [id]);
+    const fetchCampaignDetails = async () => {
+      if (!contract) return;
+
+      try {
+        const campaignData = await contract.call("campaigns", [id]);
+
+        const parsedCampaign = {
+          owner: campaignData.owner,
+          title: campaignData.title,
+          description: campaignData.description,
+          target: campaignData.target.toString(),
+          deadline: campaignData.deadline.toNumber(),
+          amountCollected: ethers.utils.formatEther(campaignData.amountCollected),
+          image: campaignData.image,
+        };
+
+        setCampaign(parsedCampaign);
+
+        // Fetch donators list
+        const donations = await contract.call("getDonatorsList", [id]);
+        const numberOfDonations = donations[0].length;
+
+        const parsedDonations = [];
+        for (let i = 0; i < numberOfDonations; i++) {
+          parsedDonations.push({
+            address: donations[0][i],
+            donation: ethers.utils.formatEther(donations[1][i]),
+          });
+        }
+
+        setDonators(parsedDonations);
+      } catch (error) {
+        console.error("Failed to fetch campaign details:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchCampaignDetails();
+  }, [contract, id]);
 
   const handleDonate = async () => {
+    if (!contract) return;
     setIsLoading(true);
+    const parsedAmount = parseFloat(amount);
+    if (parsedAmount > 0) {
+      await contract.call("donateCampaign", [id], {
+        value: ethers.utils.parseEther(amount),
+      });
 
-    // Mock donation functionality - replace with actual blockchain implementation
-    setTimeout(() => {
-      alert(`Thank you for your donation of ${amount} ETH!`);
-      setAmount("");
+      toast.success("Thanks for your donation!");
+
       setIsLoading(false);
-    }, 1000);
+      return;
+    }
   };
 
   // Format address to show only first and last few characters
@@ -93,12 +90,23 @@ const CampaignDetails = () => {
   };
 
   // Calculate days left until deadline
-  const calculateDaysLeft = (deadline: string) => {
-    const deadlineDate = new Date(deadline);
+  const calculateDaysLeft = (deadline: number) => {
+    // Ensure deadline is a valid number
+    if (isNaN(deadline) || deadline <= 0) {
+      return 0;
+    }
+
+    const deadlineDate = new Date(deadline * 1000); // Convert Unix timestamp (seconds) to milliseconds
     const currentDate = new Date();
+
+    // Calculate difference in milliseconds
     const difference = deadlineDate.getTime() - currentDate.getTime();
+
+    // Convert to days and round up to include partial days
     const daysLeft = Math.ceil(difference / (1000 * 3600 * 24));
-    return daysLeft;
+
+    // Return 0 if deadline has passed or is today
+    return daysLeft > 0 ? daysLeft : 0;
   };
 
   // Calculate progress percentage
@@ -236,27 +244,35 @@ const CampaignDetails = () => {
         </div>
       )}
 
-      {!isLoading && campaign && donators.length > 0 && (
+      {!isLoading && campaign && (
         <div className="mt-[60px] bg-gradient-to-br from-[#1c1c24] to-[#2c2c34] rounded-[15px] p-6 border border-[#3a3a43]/30 shadow-lg">
           <h4 className="font-epilogue font-semibold text-[22px] text-white">
             Donators
           </h4>
 
-          <div className="mt-[20px] flex flex-col gap-4 max-h-[400px] overflow-y-auto pr-2">
-            {donators.map((donator: any, index: number) => (
-              <div
-                key={`${donator.address}-${index}`}
-                className="flex justify-between items-center gap-4 bg-[#13131a] p-4 rounded-[10px] border border-[#3a3a43]/30 hover:bg-[#13131a]/80 transition-colors duration-200"
-              >
-                <p className="font-epilogue font-normal text-[16px] text-white leading-[26px]">
-                  {index + 1}. {formatAddress(donator.address)}
-                </p>
-                <p className="font-epilogue font-normal text-[16px] text-[#1dc071] leading-[26px]">
-                  {donator.donation} ETH
-                </p>
-              </div>
-            ))}
-          </div>
+          {donators.length > 0 ? (
+            <div className="mt-[20px] flex flex-col gap-4 max-h-[400px] overflow-y-auto pr-2">
+              {donators.map((donator: any, index: number) => (
+                <div
+                  key={`${donator.address}-${index}`}
+                  className="flex justify-between items-center gap-4 bg-[#13131a] p-4 rounded-[10px] border border-[#3a3a43]/30 hover:bg-[#13131a]/80 transition-colors duration-200"
+                >
+                  <p className="font-epilogue font-normal text-[16px] text-white leading-[26px]">
+                    {index + 1}. {donator.address}
+                  </p>
+                  <p className="font-epilogue font-normal text-[16px] text-[#1dc071] leading-[26px]">
+                    {donator.donation} ETH
+                  </p>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="mt-[20px] flex flex-col items-center justify-center py-8 bg-[#13131a] rounded-[10px] border border-[#3a3a43]/30">
+              <p className="font-epilogue text-[16px] text-[#a8a8b3] text-center">
+                No donations yet. Be the first to support this campaign!
+              </p>
+            </div>
+          )}
         </div>
       )}
     </div>

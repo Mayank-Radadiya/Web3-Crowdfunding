@@ -20,7 +20,7 @@ contract CrowdFunding {
     uint256 public numberOfCampaigns = 0;
 
     // Function for create a new campaign by user.
-    function crateCampaign(
+    function createCampaign(
         address _owner,
         string memory _title,
         string memory _description,
@@ -65,7 +65,7 @@ contract CrowdFunding {
     }
 
     // Get all campaign
-    function getAllCampaign() public view returns (Campaign[] memory) {
+    function getAllCampaigns() public view returns (Campaign[] memory) {
         // here we create a array of Campaign type with fix side of numberOfCampaigns.
         Campaign[] memory allCampaigns = new Campaign[](numberOfCampaigns);
         // ArrayType[]   variable = new ArrayType(size)
@@ -89,5 +89,27 @@ contract CrowdFunding {
         uint256[] memory campaignDonations = campaigns[_id].donations;
 
         return (campaignOwners, campaignDonations);
+    }
+
+    function getCurrentUserCampaign(
+        address _owner
+    ) public view returns (Campaign[] memory) {
+        Campaign[] memory userCampaigns = new Campaign[](numberOfCampaigns);
+        uint256 count = 0;
+
+        for (uint256 i = 0; i < numberOfCampaigns; i++) {
+            if (campaigns[i].owner == _owner) {
+                userCampaigns[count] = campaigns[i];
+                count++;
+            }
+        }
+
+        // Resize the array to the actual number of campaigns
+        Campaign[] memory result = new Campaign[](count);
+        for (uint256 j = 0; j < count; j++) {
+            result[j] = userCampaigns[j];
+        }
+
+        return result;
     }
 }

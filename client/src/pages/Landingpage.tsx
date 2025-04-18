@@ -296,7 +296,10 @@ export default function LandingPage() {
                   Join our community of innovators and bring your vision to life
                   with blockchain-powered crowdfunding.
                 </p>
-                <button className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-6 py-6 text-lg rounded-[15px] inline-flex items-center">
+                <button
+                  className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-6 py-6 text-lg rounded-[15px] inline-flex items-center"
+                  onClick={handleNavigation}
+                >
                   Visit Dashboard <ArrowRight className="ml-2 h-5 w-5" />
                 </button>
               </div>
