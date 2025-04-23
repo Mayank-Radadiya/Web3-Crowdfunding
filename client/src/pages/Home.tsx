@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { CustomButton, Loader } from "../components";
 import { Loader2 } from "lucide-react";
-import { useContract } from "@thirdweb-dev/react";
+import { useAddress, useContract } from "@thirdweb-dev/react";
 import { ethers } from "ethers";
 
 interface Campaign {
@@ -18,6 +18,7 @@ interface Campaign {
 
 const Home = () => {
   const navigate = useNavigate();
+  const address = useAddress();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);
@@ -58,8 +59,6 @@ const Home = () => {
 
     fetchCampaigns();
   }, [contract]);
-
-  console.log("Campaigns:", campaigns);
 
   // Filter campaigns when search term or campaigns change
   useEffect(() => {

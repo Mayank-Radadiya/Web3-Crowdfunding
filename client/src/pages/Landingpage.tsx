@@ -9,19 +9,35 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { logo } from "../assets";
+import { useAddress, useMetamask } from "@thirdweb-dev/react";
+import toast from "react-hot-toast";
 
 export default function LandingPage() {
+  const address = useAddress();
+  const connect = useMetamask();
   const navigation = useNavigate();
   const handleNavigation = () => {
-    navigation("/");
+    if (!address) {
+      alert(
+        "First you have metamask wallet and you should be on the sepolia network."
+      );
+      toast.success("Check your metamask wallet and connect it.");
+      connect();
+      toast.remove();
+      toast.success("Wallet connected successfully.");
+    } else {
+      localStorage.setItem("address", address);
+      navigation("/");
+    }
   };
+
   return (
     <div className="min-h-screen bg-[#0F0F13] text-white">
       {/* Navigation */}
       <header className="border-b border-gray-800 bg-[#0F0F13]/90 backdrop-blur-sm fixed top-0 w-full z-50">
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-md bg-gradient-to-r from-purple-500 to-teal-400 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-[5px] bg-gradient-to-r from-purple-500 to-teal-400 flex items-center justify-center">
               <Coins className="w-6 h-6 text-white" />
             </div>
             <span className="font-bold text-xl">CryptoFund</span>
@@ -47,7 +63,7 @@ export default function LandingPage() {
               onClick={handleNavigation}
               className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-4 py-2 rounded-[10px]"
             >
-              Launch App
+              {address ? "Dashboard" : "Connect Wallet"}
             </button>
           </div>
         </div>
@@ -68,7 +84,10 @@ export default function LandingPage() {
               causes. Join our community of changemakers on the blockchain.
             </p>
             <div className="flex items-center">
-              <button className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-8 py-6 text-lg rounded-[10px]">
+              <button
+                className="bg-gradient-to-r from-violet-500 to-teal-400 hover:from-violet-600 hover:to-teal-500 text-white border-0 px-8 py-6 text-lg rounded-[10px]"
+                onClick={handleNavigation}
+              >
                 Create a campaign
               </button>
             </div>

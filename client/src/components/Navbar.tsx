@@ -1,20 +1,22 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-
-// import { useStateContext } from "../context";
 import { CustomButton } from "./";
 import { logo, menu, thirdweb } from "../assets";
 import { navLinks } from "../constants";
+import { useAddress, useMetamask } from "@thirdweb-dev/react";
+import toast from "react-hot-toast";
 
 const Navbar = () => {
   const navigate = useNavigate();
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
-  // const { connect, address } = useStateContext();
-  const { connect, address } = {
-    connect: () => {},
-    address: "0x1234567890abcdef",
-  };
+  const connect = useMetamask();
+
+  const address = localStorage.getItem("address");
+  if (!address) {
+    toast.error("Please connect your wallet first");
+    navigate("/landing");
+  }
 
   return (
     <div className="flex md:flex-row flex-col-reverse justify-end mb-[35px] gap-6">
@@ -29,7 +31,10 @@ const Navbar = () => {
           }
           handleClick={() => {
             if (address) navigate("create-campaign");
-            else connect();
+            else {
+              toast.error("Please connect your wallet first");
+              connect();
+            }
           }}
         />
 
