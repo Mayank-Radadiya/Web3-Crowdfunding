@@ -23,10 +23,7 @@ export default function LandingPage() {
       );
       toast.success("Check your metamask wallet and connect it.");
       connect();
-      toast.remove();
-      toast.success("Wallet connected successfully.");
     } else {
-      localStorage.setItem("address", address);
       navigation("/");
     }
   };

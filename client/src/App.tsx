@@ -7,6 +7,7 @@ import {
   LandingPage,
 } from "./pages";
 import { Navbar, Sidebar } from "./components/index";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 export function App() {
   const location = useLocation();
@@ -30,7 +31,14 @@ export function App() {
         >
           {!isLandingPage && <Navbar />}
           <Routes>
-            <Route path="/" element={<Home />} />
+            <Route
+              path="/"
+              element={
+                <ProtectedRoute>
+                  <Home />
+                </ProtectedRoute>
+              }
+            />
             <Route path="/landing" element={<LandingPage />} />
             <Route path="/create-campaign" element={<CreateCampaign />} />
             <Route path="/campaign-details/:id" element={<CampaignDetails />} />

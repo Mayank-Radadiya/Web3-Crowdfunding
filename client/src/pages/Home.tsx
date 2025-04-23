@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { CustomButton, Loader } from "../components";
+import { CustomButton } from "../components";
 import { Loader2 } from "lucide-react";
 import { useAddress, useContract } from "@thirdweb-dev/react";
 import { ethers } from "ethers";
@@ -18,7 +18,6 @@ interface Campaign {
 
 const Home = () => {
   const navigate = useNavigate();
-  const address = useAddress();
   const [campaigns, setCampaigns] = useState<Campaign[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filteredCampaigns, setFilteredCampaigns] = useState<Campaign[]>([]);

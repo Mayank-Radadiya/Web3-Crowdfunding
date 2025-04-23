@@ -11,12 +11,7 @@ const Navbar = () => {
   const [isActive, setIsActive] = useState("dashboard");
   const [toggleDrawer, setToggleDrawer] = useState(false);
   const connect = useMetamask();
-
-  const address = localStorage.getItem("address");
-  if (!address) {
-    toast.error("Please connect your wallet first");
-    navigate("/landing");
-  }
+  const address = useAddress();
 
   return (
     <div className="flex md:flex-row flex-col-reverse justify-end mb-[35px] gap-6">
